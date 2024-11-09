@@ -35,7 +35,7 @@ def cell_options(T, move_left, move_forward, move_right):
                     options.append(
                         Tuple_([String(in_dir),
                                 move,
-                                String(direction[j])]))
+                                String(directions[j])]))
 
     #######################################################
     # for i in range(0, 4):
