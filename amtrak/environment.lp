@@ -1,4 +1,4 @@
-time(T) :- T=0..6.
+time(T) :- T=0..5.
 
 % original
 %%%% Grid %%%%%
