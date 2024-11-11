@@ -63,7 +63,6 @@ def display_bitmaps():
 
 
 def options(t):
-    print(t)
     t_bit = '{0:016b}'.format(t)
 
     directions = {
@@ -75,11 +74,9 @@ def options(t):
 
     options = []
 
-    cell = {}
     for i in range(0, 4):
         in_dir = directions[i]
         section = list(t_bit[4 * i : 4 * (i + 1)])
-        print(section, section.count('1'))
         if section.count('1') == 0:
             continue
         if section.count('1') == 1:
@@ -96,7 +93,6 @@ def options(t):
                 i: 'move_forward',
                 i + 1 if i != 3 else 0: 'move_right',
             }
-            print(i, moves)
             for j, subsection in enumerate(section):
                 if subsection == '1':
                     options.append([in_dir, moves[j], directions[j]])
@@ -107,8 +103,15 @@ def options(t):
 
 # display_bitmaps()
 
-print(options(72))
-print(options(2064))
+# print(options(72))
+# print(options(2064))
 
-print(options(32800))
-print(options(37408))
+# print(options(32800))
+# print(options(37408))
+
+
+for track, symbol in tracks.items():
+    if isinstance(track, str):
+        continue
+    for option in options(track):
+        print(f'track_option({track},({option[0]},{option[1]},{option[2]})).')
