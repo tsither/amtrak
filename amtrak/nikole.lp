@@ -6,6 +6,7 @@ option((X,Y),TO) :- track_option(Track,TO),  cell((X,Y), Track).
 % at time 0 trains should be found at their starting position
 at(train(ID),(X,Y),Dep,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
 
+% add wait actions before and after trains' start and end times
 action(train(ID),wait,T) :- T < ST, start(ID,_,ST,_), time(T).
 action(train(ID),wait,T) :- T > ET, end(ID,_,ET), time(T).
 
@@ -13,13 +14,6 @@ action(train(ID),wait,T) :- T > ET, end(ID,_,ET), time(T).
 % add actions based on train position and cell options
 { action(train(ID),M,T+1): option((X,Y),(D,M,_)) } = 1 :-
     at(train(ID),(X,Y),T,D), T < ET, end(ID,_,ET), time(T+1).
-
-% TODO: wait handling
-%   - add waits before starts and after ends?
-%   - max-/minimize statement could be based on num of waits?
-%   - ?
-% where a train has not taken a move, add a wait action
-% action(train(ID),wait,T) :- option((X,Y),(_,_,D)), time(T), train(ID), not action(train(ID),_,T).
 
 % only one action per train and time T
 :- M1 != M2, action(train(ID),M1,T), action(train(ID),M2,T).
@@ -51,7 +45,8 @@ at(train(ID),(X,Y2),T2,w) :- Y2 = Y1-1, option((X,Y1),(D,M,w)),
     cell((X,Y2),_), action(train(ID),M,T2), at(train(ID),(X,Y1),T1,D),
     T2 = T1 + 1, time(T2), time(T1).
 
-% TODO: max or min statement
+% TODO: max-/minimize statement could be based on num of waits within each
+%     trains' accepted movement timeframe?
 % #maximize{ 1,T,M,N: at(train(ID),(X,Y2),T2,w) }.
 
 #show action/3.
