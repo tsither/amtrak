@@ -152,6 +152,7 @@ def main():
     actions = sim.build_actions()
 
     timestep = 0
+    os.makedirs("tmp/frames", exist_ok=True)
     while len(actions) > timestep:
         _, _, done, info = env.step(actions[timestep])
 
