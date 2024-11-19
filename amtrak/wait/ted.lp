@@ -91,28 +91,19 @@ jumped(ID1,ID2,T) :- at(train(ID1),(X1,Y1),T,_), at(train(ID2),(X2,Y2),T,_), edg
 
 
 
-% :- C = #count{at(train(ID),(X,Y),T,_)}, C>=1, end(ID,(X,Y),ET), T<ET.
+%%%%%%%% Optimization %%%%%%%%
+
+% sum(X) :- X = #sum{1,ID,M,T : action(ID,M,T)}, M=wait.        %sum all waits for all trains
+% #minimize{X : sum(X)}.
+
+% optimal optimization, do in one line to reduce grounding!
+#minimize{ 1:  action(ID,wait,T)}.
 
 
-% Trains can't jump over each other
-%  action(train(ID1),M,T), action(train(ID),M,T), 
-
-% :- at(train(ID1),(X1,Y1),T,_), at(train(ID2),(X2,Y2),T,_), 
-%     edge((X1,Y1),(X2,Y2)), 
-%     at(train(ID1),(X2,Y2),T2,_), at(train(ID2),(X1,Y1),T2,_), 
-%     ID1!=ID2, T2=T+1.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-
-
-
-% TODO: max-/minimize statement could be based on num of waits within each
-%     trains' accepted movement timeframe?
-% #minimize{ 1,T,M,N: at(train(ID),(X,Y2),T2,_) }.
-
-
-
+% count(C) :- C = #count{M : action(ID,M,T)}. counts unique number of Ms
 
 
 % #show arrived/1.
