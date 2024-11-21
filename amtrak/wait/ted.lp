@@ -10,13 +10,13 @@ option((X,Y),TO) :- track_option(Track,TO),  cell((X,Y), Track). % map the gener
 % Trains must start at their starting positions at start times
 at(train(ID),(X,Y),Dep,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
 
+
 % add wait actions before and after trains' start and end times         
 % action(train(ID),wait,T) :- T < ST, start(ID,_,ST,_), time(T).
 % action(train(ID),wait,T) :- T > ET, end(ID,_,ET), time(T).
 
 
 %%%%%%%%%%%% Generation %%%%%%%%%%%%
-
 
 % TODO: should actions be happening at T or T+1? At T=0 no action?
 
@@ -29,7 +29,6 @@ at(train(ID),(X,Y),Dep,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
 
 at(train(ID),(X,Y),T2,D1) :- option((X,Y),(D1,wait,D2)), action(train(ID),wait,T2),    % WAIT : if there is a 'wait' action chosen on this cell, train waits on this timestep
     at(train(ID),(X,Y),T1,D1), T2 = T1 + 1, time(T2), time(T1).                      % modified option(D,_,D)
-
 
 
 at(train(ID),(X2,Y),T2,n) :- X2 = X1-1, option((X1,Y),(D,M,n)),         % action moves train into new cell, create new 'at' atom: if the direction out of a movement is 'north', put train on the next cell facing north
@@ -84,6 +83,7 @@ edge((X1,Y1),(X2,Y2)) :- option((X1,Y1), (_,M,D)), option((X2,Y2), (D,_,_)), X2=
 edge((X1,Y1),(X2,Y2)) :- option((X1,Y1), (_,M,D)), option((X2,Y2), (D,_,_)), X2=X1, Y2 = Y1 + 1. %D = "e".
 %%%%%% %%%%%% %%%%%% %%%%%% 
 
+% trains cant jump over each other on adjacent cells
 jumped(ID1,ID2,T) :- at(train(ID1),(X1,Y1),T,_), at(train(ID2),(X2,Y2),T,_), edge((X1,Y1),(X2,Y2)), at(train(ID1),(X2,Y2),T2,_), at(train(ID2),(X1,Y1),T2,_), T2=T+1.
 
 :- jumped(_,_,_).
@@ -102,8 +102,6 @@ jumped(ID1,ID2,T) :- at(train(ID1),(X1,Y1),T,_), at(train(ID2),(X2,Y2),T,_), edg
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-% count(C) :- C = #count{M : action(ID,M,T)}. counts unique number of Ms
 
 
 % #show arrived/1.
