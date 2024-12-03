@@ -13,6 +13,9 @@ from flatland.envs.rail_env import RailEnvActions
 from flatland.utils.rendertools import RenderTool, AgentRenderVariant
 
 
+from PIL import Image, ImageDraw, ImageFont
+
+
 class ClingoAgent:
     """
     build a clingo agent
@@ -96,7 +99,11 @@ def render(env, actions):
         print("step\n")
         next_obs, all_rewards, done, _ = env.step(action_dict)
         print("done: ", done)
+
         filename = 'tmp/frames/flatland_frame_{:04d}.png'.format(step)
+        timestep_txt = filename[-8:-4]  # Extract last 4 characters before ".png"
+
+
         if env_renderer is not None:
             env_renderer.render_env(show=True, show_observations=False, show_predictions=False)
             env_renderer.gl.save_image(filename)
