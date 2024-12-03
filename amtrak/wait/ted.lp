@@ -1,4 +1,4 @@
-#include "test_wait_env.lp".
+#include "test_env_1.lp".
 #include "track_option_wait_all.lp".
 
 
@@ -18,7 +18,6 @@ at(train(ID),(X,Y),Dep,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
 
 %%%%%%%%%%%% Generation %%%%%%%%%%%%
 
-% TODO: should actions be happening at T or T+1? At T=0 no action?
 
 % add actions based on train position and cell options
 { action(train(ID),M,T+1): option((X,Y),(D,M,_)) } = 1 :-
@@ -68,7 +67,7 @@ arrived(ID) :- at(train(ID),(X,Y),T,_), end(ID,(X,Y),ET), T<=ET.
 :- train(ID), not arrived(ID).
 
 % trains cant double up on cells
-double(ID1,ID2,(X,Y),T) :- at(train(ID1),(X,Y),T,_), at(train(ID2),(X,Y),T,_), ID1!=ID2.
+double(ID1,ID2,(X,Y),T) :- at(train(ID1),(X,Y),T,_), at(train(ID2),(X,Y),T,_), ID1<ID2.
 :- double(_,_,_,_).
 
 
@@ -83,18 +82,14 @@ edge((X1,Y1),(X2,Y2)) :- option((X1,Y1), (_,M,D)), option((X2,Y2), (D,_,_)), X2=
 edge((X1,Y1),(X2,Y2)) :- option((X1,Y1), (_,M,D)), option((X2,Y2), (D,_,_)), X2=X1, Y2 = Y1 + 1. %D = "e".
 %%%%%% %%%%%% %%%%%% %%%%%% 
 
-% trains cant jump over each other on adjacent cells
-jumped(ID1,ID2,T) :- at(train(ID1),(X1,Y1),T,_), at(train(ID2),(X2,Y2),T,_), edge((X1,Y1),(X2,Y2)), at(train(ID1),(X2,Y2),T2,_), at(train(ID2),(X1,Y1),T2,_), T2=T+1.
+% trains cant jump over each other on adjacent cells        ***TRY ID1<ID2
+jumped(ID1,ID2,T) :- at(train(ID1),(X1,Y1),T,_), at(train(ID2),(X2,Y2),T,_), edge((X1,Y1),(X2,Y2)), at(train(ID1),(X2,Y2),T2,_), at(train(ID2),(X1,Y1),T2,_), T2=T+1, ID1<ID2.
+
 
 :- jumped(_,_,_).
 
 
-
-
 %%%%%%%% Optimization %%%%%%%%
-
-% sum(X) :- X = #sum{1,ID,M,T : action(ID,M,T)}, M=wait.        %sum all waits for all trains
-% #minimize{X : sum(X)}.
 
 % optimal optimization, do in one line to reduce grounding!
 #minimize{ 1:  action(ID,wait,T)}.
