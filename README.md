@@ -1,4 +1,4 @@
-# Flatland
+# KRR-Flatland
 
 ![Flatland animation](https://i.imgur.com/9cNtWjs.gif)
 
@@ -31,18 +31,21 @@ is necessary to integrate Python and ASP.
 
 In accordance with the Flatland competition, it is recommended to install [Anaconda](https://www.anaconda.com/distribution/) and create a new conda environment:
 ```
-conda create python=3.7 --name flatland
+conda create python=3.8 --name flatland
 conda activate flatland
 ```
 
 📦 Then, install the stable release of Flatland:
 ```
-pip install flatland-rl
+# pip install flatland-rl
+pip install -r doc/requirements.txt
 ```
 
 📦 To have access to clingo, install the required package:
 ```
 conda install -c potassco clingo
+# or if that doesn't work
+conda install -c conda-forge clingo
 ```
 
 <br>

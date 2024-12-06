@@ -140,3 +140,4 @@ def render(env, actions):
     # close the renderer / rendering window
     if env_renderer is not None:
         env_renderer.close_window()
+
