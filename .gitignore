@@ -2,6 +2,7 @@
 asp/params.py
 /envs
 /tmp
-!/output/test
 /output
 .DS_Store
+*.patch
+
