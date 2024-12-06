@@ -1,7 +1,7 @@
 #include "test_env_1.lp".
 #include "track_option_wait_all.lp".
 
-
+%testingtesting
 time(X) :- end(_,_,T), X=0..T.
 
 
