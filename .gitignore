@@ -1,8 +1,5 @@
-*.pyc
 asp/params.py
 /envs
 /tmp
 /output
-.DS_Store
 *.patch
-
