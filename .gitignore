@@ -1,0 +1,7 @@
+asp/params.py
+/envs
+/tmp
+/output
+*.patch
+*.pyc
+*/.DS_Store
