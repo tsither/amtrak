@@ -3,3 +3,5 @@ asp/params.py
 /tmp
 /output
 *.patch
+*.pyc
+*/.DS_Store
