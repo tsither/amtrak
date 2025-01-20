@@ -274,8 +274,4 @@ not_turn(33825).
 
 turn(T) :- not not_turn(T), cell(_,T).
 
-ns(n). ns(s). ew(e). ew(w).
-
-dir(ns). dir(ew). dir(ne). dir(se). dir(sw). dir(nw).
-
 option((X,Y),(IN,M,OUT)) :- track_option(Track, (IN,M,OUT)),  cell((X,Y), Track), not M=wait. % map the general track options to the current flatland environment in the form of 'option' atoms

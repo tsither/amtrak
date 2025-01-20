@@ -23,7 +23,6 @@ path_step(A, C, L) :-
     not visited(A,C),
     L=L1+1.
 
-% Mark visited cells to prevent cycles
 visited(A, B) :- path_step(A, B, _).
 
 path(A, B, L) :-
