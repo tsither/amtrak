@@ -267,12 +267,7 @@ track_option(52275,(w,move_forward,w)).
 track_option(52275,(w,wait,w)).
 track_option(52275,(w,wait,w)).
 
-
-not_turn(32800). not_turn(1025).
-not_turn(4608). not_turn(16386). not_turn(72). not_turn(2064).
-not_turn(33825).
-
-turn(T) :- not not_turn(T), cell(_,T).
+node_track(T) :- C > 4, C = #count{ D: track_option(T,D) }, track_option(T, _).
 
 ns(n). ns(s). ew(e). ew(w).
 
