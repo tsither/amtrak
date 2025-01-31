@@ -16,15 +16,6 @@ path_step(A, A, B, 1) :-
     link(A, B), 
     node(A).
 
-<<<<<<< HEAD
-path_step(A, C, L) :-
-    path_step(A,B,L1),
-    link(B,C),
-    not visited(A,C),
-    L=L1+1.
-
-visited(A, B) :- path_step(A, B, _).
-=======
 % N is starting node, A, B are the cells in the path at each step
 path_step(N, B, C, L) :-
     link(B, C),
@@ -34,7 +25,6 @@ path_step(N, B, C, L) :-
     L=L1+1,
     L <= CC,
     cell_count(CC).
->>>>>>> 66590ea326691b797f3dbd7d22c95517309abe8b
 
 path(A, B, L) :-
     path_step(A, _, B, L),
