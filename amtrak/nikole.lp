@@ -1,61 +1,70 @@
 
+% add time steps
 time(T) :- T=0..EndT, end(_,_,EndT).
 
-option((X,Y),TO) :- track_option(Track,TO),  cell((X,Y), Track).
+%%%%%%%% Mapping Cell Options %%%%%%%%
 
-% at time 0 trains should be found at their starting position
+% add options for movement between connected track cells for each direction
+option((X1,Y),(X2,Y),D,M,n) :- track_option(Track1,(D,M,n)),
+    track_option(Track2,(n,_,_)), X2 = X1 - 1, cell((X1,Y), Track1),
+    cell((X2,Y), Track2), M != wait. % north
+option((X,Y1),(X,Y2),D,M,e) :- track_option(Track1,(D,M,e)),
+    track_option(Track2,(e,_,_)), Y2 = Y1 + 1, cell((X,Y1), Track1),
+    cell((X,Y2), Track2), M != wait. % east
+option((X1,Y),(X2,Y),D,M,s) :- track_option(Track1,(D,M,s)),
+    track_option(Track2,(s,_,_)), X2 = X1 + 1, cell((X1,Y), Track1),
+    cell((X2,Y), Track2), M != wait. % south
+option((X,Y1),(X,Y2),D,M,w) :- track_option(Track1,(D,M,w)),
+    track_option(Track2,(w,_,_)), Y2 = Y1 - 1, cell((X,Y1), Track1),
+    cell((X,Y2), Track2), M != wait. % west
+
+% add options for trains waiting
+option((X,Y),(X,Y),D,wait,D) :- track_option(Track,(D,wait,D)),
+    cell((X,Y), Track).
+
+%%%%%%%% Movement Generation %%%%%%%%
+
+% at thier departure time trains should be found at their starting position
 at(ID,(X,Y),Dep,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
 
-% add actions based on train position and cell options
-{ action(train(ID),M,T+1): option((X,Y),(D,M,_)) } = 1 :-
-    at(ID,(X,Y),T,D), T < EndT, end(ID,_,EndT), time(T+1).
+% add action atoms based on train position and cell options
+{ action(train(ID),M,T+1): option((X1,Y1),(X2,Y2),D1,M,D2) } = 1 :-
+    at(ID,(X1,Y1),T,D1), T < EndT, end(ID,_,EndT), not done(ID,T), time(T+1).
 
-% only one action per train and time T
-:- M1 != M2, action(train(ID),M1,T), action(train(ID),M2,T).
+% add at atoms for each trains' position at each time step
+at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T+1),
+    option((X1,Y1),(X2,Y2),D1,M,D2), at(ID,(X1,Y1),T,D1).
+% TODO: right now when a train reaches its destination there will be an at and
+% a done atom at that time stamp, followed by only done atoms.  Might need
+% adjusting so that done atoms only appear one time step after last at atom
+% where the train is reaching its destination?
 
-% only one at movement per train and time T
-:- D1 != D2, at(ID,(_,_),T,D1), at(ID,(_,_),T,D2).
+% action(train(ID),done,T+1) :- done(ID,T), time(T+1).
+
+%%%%%%%% Constraining Movements %%%%%%%%
+
+% trains cannot occupy the same cell
 :- ID1 != ID2, at(ID1,(X,Y),T,_), at(ID2,(X,Y),T,_).
-% :- XY1 != XY2, at(ID,XY1,T,_), at(ID,XY2,T,_).
 
-% if moving forward add ats to indicate new cell positions
-at(ID,(X,Y),T2,D) :- option((X,Y),(D,wait,D)), action(train(ID),wait,T2),
-    at(ID,(X,Y),T1,D), T2 = T1 + 1, time(T2), time(T1).
+% trains cannot jump over eachother to switch places
+:- ID1 != ID2, at(ID1,(X2,Y2),T+1,_), at(ID2,(X1,Y1),T+1,_),
+    at(ID1,(X1,Y1),T,_), at(ID2,(X2,Y2),T,_).
 
-at(ID,(X2,Y),T2,n) :- X2 = X1-1, option((X1,Y),(D,M,n)),
-    cell((X2,Y),_), action(train(ID),M,T2), at(ID,(X1,Y),T1,D),
-    T2 = T1 + 1, time(T2), time(T1).
+%%%%%%%% Reaching Destinations %%%%%%%%
 
-at(ID,(X,Y2),T2,e) :- Y2 = Y1+1, option((X,Y1),(D,M,e)),
-    cell((X,Y2),_), action(train(ID),M,T2), at(ID,(X,Y1),T1,D),
-    T2 = T1 + 1, time(T2), time(T1).
+% when a train reaches its end destination add a done
+done(ID,T) :- at(ID,(X,Y),T,_), end(ID,(X,Y),EndT), T<=EndT.
 
-at(ID,(X2,Y),T2,s) :- X2 = X1+1, option((X1,Y),(D,M,s)),
-    cell((X2,Y),_), action(train(ID),M,T2), at(ID,(X1,Y),T1,D),
-    T2 = T1 + 1, time(T2), time(T1).
+% and add a done for each time step after reaching end destination
+done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
 
-at(ID,(X,Y2),T2,w) :- Y2 = Y1-1, option((X,Y1),(D,M,w)),
-    cell((X,Y2),_), action(train(ID),M,T2), at(ID,(X,Y1),T1,D),
-    T2 = T1 + 1, time(T2), time(T1).
+% all trains must arrive at its end destination
+:- train(ID), not done(ID,_).
 
-% all trains must arrive at end destination
-arrived(ID,T,(X,Y),EndT) :- at(ID,(X,Y),T,_), end(ID,(X,Y),EndT), T<=EndT.
-:- train(ID), not arrived(ID,_,_,_).
-
-% add links between connected track cells
-link((X1,Y),(X2,Y)) :- option((X1,Y),(_,_,s)), option((X2,Y),(s,_,_)), X2 = X1 + 1.
-link((X,Y1),(X,Y2)) :- option((X,Y1),(_,_,e)), option((X,Y2),(e,_,_)), Y2 = Y1 + 1.
-link((X,Y1),(X,Y2)) :- option((X,Y1),(_,_,w)), option((X,Y2),(w,_,_)), Y2 = Y1 - 1.
-link((X1,Y),(X2,Y)) :- option((X1,Y),(_,_,n)), option((X2,Y),(n,_,_)), X2 = X1 - 1.
-
-% TODO: make sure this works, maybe refine a bit
-% trains cant jump over each other on adjacent cells
-jumped(ID1,ID2,T) :- at(ID1,(X1,Y1),T,_), at(ID2,(X2,Y2),T,_),
-    link((X1,Y1),(X2,Y2)), at(ID1,(X2,Y2),T2,_),
-    at(ID2,(X1,Y1),T2,_), T2=T+1, ID1<ID2.
-:- jumped(_,_,_).
-
+%%%%%%%% Optimization %%%%%%%%
 
 #minimize{ 1:  action(ID,wait,T)}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #show action/3.
