@@ -1,3 +1,4 @@
+#include "graph/track_option.lp".
 
 % add time steps
 time(T) :- T=0..EndT, end(_,_,EndT).
@@ -66,7 +67,7 @@ done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
 
 %%%%%%%% Optimization %%%%%%%%
 
-#minimize{ 1:  action(ID,wait,T) }.
+#minimize{ 1: action(ID,wait,T) }.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
