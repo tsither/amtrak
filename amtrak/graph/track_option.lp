@@ -270,3 +270,74 @@ track_option(52275,(w,wait,w)).
 node_track(T) :- C > 4, C = #count{ D: track_option(T,D) }, track_option(T, _).
 
 option((X,Y),(IN,M,OUT)) :- track_option(Track, (IN,M,OUT)),  cell((X,Y), Track), not M=wait. % map the general track options to the current flatland environment in the form of 'option' atoms
+
+cell_count(C) :- C = #count{ XY: cell((XY), Track), Track != 0}.
+
+
+% each track ID is given a set of connections
+% connection(ID, N/S, W/E, N/E, E/S, S/W, W/N)
+
+% Track Type 1 - Straight
+connection(32800,   1, 0, 0, 0, 0, 0).  % north to south
+connection(1025,    0, 1, 0, 0, 0, 0).  % west to east
+
+% Track Type 8 - Curve
+connection(4608,    0, 0, 0, 0, 1, 0).  % south to west    
+connection(16386,   0, 0, 0, 1, 0, 0).  % east to south
+connection(72,      0, 0, 1, 0, 0, 0).  % north to east
+connection(2064,    0, 0, 0, 0, 0, 1).  % west to north
+
+% Track Type 2 - Simple switch (left)
+connection(37408,   1, 0, 0, 0, 1, 0).
+connection(17411,   0, 1, 0, 1, 0, 0).
+connection(32872,   1, 0, 1, 0, 0, 0).
+connection(3089,    0, 1, 0, 0, 0, 1).
+
+% Track Type 9 - Simple switch (right)
+connection(49186,   1, 0, 0, 1, 0, 0).
+connection(1097,    0, 1, 1, 0, 0, 0).
+connection(34864,   1, 0, 0, 0, 0, 1).
+connection(5633,    0, 1, 0, 0, 1, 0).
+
+% Track Type 3 - Diamond crossing
+connection(33825,   1, 1, 0, 0, 0, 0).
+
+% Track Type 4 - Single-slip switch
+connection(38433,   1, 1, 0, 0, 1, 0).
+connection(50211,   1, 1, 0, 1, 0, 0).
+connection(33897,   1, 1, 1, 0, 0, 0).
+connection(35889,   1, 1, 0, 0, 0, 1).
+
+% Track Type 5 - Double-slip switch
+connection(38505,   1, 1, 1, 0, 1, 0).
+connection(52275,   1, 1, 0, 1, 0, 1).
+
+% Track Type 6 - Symmetrical switch
+connection(20994,   0, 0, 0, 1, 1, 0).
+connection(16458,   0, 0, 1, 1, 0, 0).
+connection(2136,    0, 0, 1, 0, 0, 1).
+connection(6672,    0, 0, 0, 0, 1, 1).
+
+%                                                  connection(ID, N/S, W/E, N/E, E/S, S/W, W/N)
+node( N, (n, s)) :- cell(N,Track), node_track(Track), connection(Track, 1, _, _, _, _, _).
+node( N, (w, e)) :- cell(N,Track), node_track(Track), connection(Track, _, 1, _, _, _, _).
+node( N, (n, e)) :- cell(N,Track), node_track(Track), connection(Track, _, _, 1, _, _, _).
+node( N, (e, s)) :- cell(N,Track), node_track(Track), connection(Track, _, _, _, 1, _, _).
+node( N, (s, w)) :- cell(N,Track), node_track(Track), connection(Track, _, _, _, _, 1, _).
+node( N, (w, n)) :- cell(N,Track), node_track(Track), connection(Track, _, _, _, _, _, 1).
+
+node( N, (n, s)) :- cell(N,Track), start(_,N,_,_), connection(Track, 1, _, _, _, _, _).
+node( N, (w, e)) :- cell(N,Track), start(_,N,_,_), connection(Track, _, 1, _, _, _, _).
+node( N, (n, e)) :- cell(N,Track), start(_,N,_,_), connection(Track, _, _, 1, _, _, _).
+node( N, (e, s)) :- cell(N,Track), start(_,N,_,_), connection(Track, _, _, _, 1, _, _).
+node( N, (s, w)) :- cell(N,Track), start(_,N,_,_), connection(Track, _, _, _, _, 1, _).
+node( N, (w, n)) :- cell(N,Track), start(_,N,_,_), connection(Track, _, _, _, _, _, 1).
+
+node( N, (n, s)) :- cell(N,Track), end(_,N,_), connection(Track, 1, _, _, _, _, _).
+node( N, (w, e)) :- cell(N,Track), end(_,N,_), connection(Track, _, 1, _, _, _, _).
+node( N, (n, e)) :- cell(N,Track), end(_,N,_), connection(Track, _, _, 1, _, _, _).
+node( N, (e, s)) :- cell(N,Track), end(_,N,_), connection(Track, _, _, _, 1, _, _).
+node( N, (s, w)) :- cell(N,Track), end(_,N,_), connection(Track, _, _, _, _, 1, _).
+node( N, (w, n)) :- cell(N,Track), end(_,N,_), connection(Track, _, _, _, _, _, 1).
+
+node( N, (D2, D1)) :- node( N, (D1, D2)).
