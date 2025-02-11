@@ -1,3 +1,5 @@
+% #include "test_envs/test_env_2/test_env_2.lp".
+
 % This file builds a weighted graph from a flatland environment .lp
 
 % Pathing moved to 'pathing.lp'
@@ -121,4 +123,47 @@ edge_step((N,OUT), B, C, IN, L) :-
 edge(S, F, (OUT,IN), L) :-       % S = start node ; F = end node ; OUT = outgoing direction of start node; IN = incoming direction to end node; L = length of node
     edge_step((S,OUT), _, F, IN, L), node(F,_).
 
+%%%%%%%%%%%%% Misc Tools %%%%%%%%%%%%%
 
+actions(move_forward).
+actions(move_left).
+actions(move_right).
+% actions(wait).
+
+
+move(s, w, move_left).
+move(w, n, move_left).
+move(n, e, move_left).            
+move(e, s, move_left).
+
+move(s,e, move_right).
+move(e,n, move_right).
+move(n,w, move_right).
+move(w,s, move_right).
+
+move(s,n, move_forward).
+move(w,e, move_forward).
+move(e,w, move_forward).
+move(n,s, move_forward).
+
+% move(IN_Current, OUT_Current, wait) :- move(IN_Current, OUT_Current, _).
+
+% Mark all locations on environment where a decision can be made
+decision_point(Node,in(IN_Current)) :- #count{OUT : node(Node,(IN_Current,OUT))}>1, node(Node,(IN_Current,_)). 
+
+% #show edge/4.
+% #show decision_point/2.
+
+
+% n_nodes(N) :- N = #count{Node : node(Node, _)}.
+% n_edges_total(N) :- N = #count{S,F:edge(S,F,_,L)}.
+
+
+% n_edges_undirected(X) :- n_edges_total(N), X=N/2.
+
+% density(D) :- n_edges_total(E), n_nodes(N), D = ((100 * E) / (N * (N - 1))).
+
+
+% #show n_edges_undirected/1.
+% #show n_nodes/1.
+% #show density/1.
