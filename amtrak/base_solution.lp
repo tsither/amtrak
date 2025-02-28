@@ -1,5 +1,3 @@
-#include "graph/track_option.lp".
-
 % add time steps
 time(T) :- T=0..EndT, end(_,_,EndT).
 
@@ -26,14 +24,15 @@ option((X,Y),(X,Y),D,wait,D) :- track_option(Track,(D,wait,D)),
 %%%%%%%% Movement Generation %%%%%%%%
 
 % at thier departure time trains should be found at their starting position
-at(ID,(X,Y),Dep,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
+at(ID,(X,Y),Dep-1,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
 
 % add action atoms based on train position and cell options
-{ action(train(ID),M,T+1): option((X1,Y1),(X2,Y2),D1,M,D2) } = 1 :-
-    at(ID,(X1,Y1),T,D1), T < EndT, end(ID,_,EndT), not done(ID,T), time(T+1).
+{ action(train(ID),M,T): option((X1,Y1),(X2,Y2),D1,M,D2) } = 1 :-
+    at(ID,(X1,Y1),T,D1), T < EndT, end(ID,_,EndT), not done(ID,T), time(T).
+    % T >= StartT, start(ID,_,StartT,_),
 
 % add at atoms for each trains' position at each time step
-at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T+1),
+at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T), time(T+1),
     option((X1,Y1),(X2,Y2),D1,M,D2), at(ID,(X1,Y1),T,D1).
 % TODO: right now when a train reaches its destination there will be an at and
 % a done atom at that time stamp, followed by only done atoms.  Might need
@@ -54,7 +53,7 @@ at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T+1),
 :- ID1 != ID2, at(ID1,(X2,Y2),T+1,_), at(ID2,(X1,Y1),T+1,_),
     at(ID1,(X1,Y1),T,_), at(ID2,(X2,Y2),T,_).
 
-%%%%%%%% Reaching Destinations %%%%%%%%
+%%%%%%%% End Destinations %%%%%%%%
 
 % when a train reaches its end destination add a done
 done(ID,T) :- at(ID,(X,Y),T,_), end(ID,(X,Y),EndT), T<=EndT.
@@ -65,9 +64,19 @@ done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
 % all trains must arrive at its end destination
 :- train(ID), not done(ID,_).
 
+% add wait actions when train is done moving
+action(train(ID),wait,T) :- done(ID,T).
+
+%%%%%%%% Stops %%%%%%%%
+
+stopped(ID,(X,Y),T) :- at(ID,(X,Y),T,_), stop(ID,(X,Y)).
+
+:- train(ID), not stopped(ID,_,_), stop(ID,_).
+
 %%%%%%%% Optimization %%%%%%%%
 
-#minimize{ 1: action(ID,wait,T) }.
+% #minimize{ 1: action(ID,wait,T) }.
+#maximize{ 1, ID, T: done(ID,T) }.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

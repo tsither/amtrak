@@ -43,7 +43,7 @@ def display_bitmaps():
             continue
         bit_str = '{0:016b}'.format(track)
         bit_str = ' '.join(
-            [bit_str[i : i + 4] for i in range(0, len(bit_str), 4)]
+            [bit_str[i: i + 4] for i in range(0, len(bit_str), 4)]
         )
         print(f'{track}\t{bit_str} - {symbol}')
     print('\n\n')
@@ -76,7 +76,7 @@ def options(t):
 
     for i in range(0, 4):
         in_dir = directions[i]
-        section = list(t_bit[4 * i : 4 * (i + 1)])
+        section = list(t_bit[4 * i: 4 * (i + 1)])
         if section.count('1') == 0:
             continue
         if section.count('1') == 1:
