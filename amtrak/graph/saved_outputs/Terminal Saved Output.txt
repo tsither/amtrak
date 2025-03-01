@@ -1,0 +1,67 @@
+
+Environment Information:
+30x30 
+2 agents
+2 cities?
+
+
+(flatland) mymac@tgs graph % clingo solutions/vanilla_solve.lp /Users/mymac/Desktop/Trains/flatland/amtrak/environments/lp/env_01.lp 0 
+clingo version 5.6.2
+Reading from solutions/vanilla_solve.lp ...
+Solving...
+Answer: 1
+arrived(1,21) arrived(2,188) cost(209)
+Optimization: 209
+Answer: 2
+arrived(2,24) arrived(1,23) cost(47)
+Optimization: 47
+Answer: 3
+arrived(2,24) arrived(1,21) cost(45)
+Optimization: 45
+Answer: 4
+arrived(2,22) arrived(1,21) cost(43)
+Optimization: 43
+OPTIMUM FOUND
+
+Models       : 4
+  Optimum    : yes
+Optimization : 43
+Calls        : 1
+Time         : 153.489s (Solving: 131.41s 1st Model: 0.67s Unsat: 0.14s)
+CPU Time     : 153.357s
+(flatland) mymac@tgs graph % 
+
+----------------------------
+
+(flatland) mymac@tgs graph % clingo --quiet=1 --opt-mode=opt solutions/vanilla_solve.lp /Users/mymac/Desktop/Trains/flatland/amtrak/environments/lp/env_01.lp
+
+clingo version 5.6.2
+Reading from solutions/vanilla_solve.lp ...
+Solving...
+Answer: 4
+action(train(1),move_forward,2) action(train(2),move_forward,3) action(train(1),move_forward,1) action(train(2),move_forward,2) cost(43) action(train(2),move_forward,5) action(train(1),move_forward,4) action(train(1),move_forward,6) action(train(2),move_forward,7) action(train(2),move_forward,6) action(train(2),move_forward,8) action(train(2),move_forward,9) action(train(2),move_forward,10) action(train(2),move_forward,11) action(train(2),move_forward,12) action(train(2),move_forward,13) action(train(2),move_forward,14) action(train(2),move_forward,15) action(train(2),move_forward,16) action(train(2),move_forward,18) action(train(2),move_forward,19) action(train(2),move_forward,21) action(train(1),move_forward,8) action(train(1),move_forward,10) action(train(1),move_forward,7) action(train(1),move_forward,9) action(train(1),move_forward,11) action(train(1),move_forward,12) action(train(1),move_forward,13) action(train(1),move_forward,14) action(train(1),move_forward,15) action(train(1),move_forward,16) action(train(1),move_forward,18) action(train(1),move_forward,19) action(train(1),move_forward,20) action(train(2),move_forward,4) action(train(1),move_forward,3) action(train(1),move_forward,5) action(train(2),move_right,17) action(train(2),move_right,20) action(train(1),move_left,17)
+Optimization: 43
+OPTIMUM FOUND
+
+Models       : 4
+  Optimum    : yes
+Optimization : 43
+Calls        : 1
+Time         : 157.618s (Solving: 134.52s 1st Model: 0.70s Unsat: 0.15s)
+CPU Time     : 156.559s
+
+
+
+
+[tgs:amtrak/graph/multi] mymac% clingo solve.lp 1
+clingo version 5.6.2
+Reading from solve.lp
+Solving...
+Answer: 1
+action(train(1),move_forward,13) action(train(0),move_forward,18) action(train(2),move_forward,83) action(train(3),move_forward,58) action(train(1),move_forward,17) action(train(1),move_forward,18) action(train(1),move_forward,21) action(train(1),move_forward,22) action(train(1),move_forward,23) action(train(1),move_forward,24) action(train(1),move_forward,25) action(train(1),move_forward,26) action(train(1),move_forward,27) action(train(1),move_forward,29) action(train(1),move_forward,31) action(train(1),move_forward,32) action(train(1),move_forward,33) action(train(1),move_forward,34) action(train(1),move_forward,35) action(train(1),move_forward,36) action(train(1),move_forward,38) action(train(1),move_forward,39) action(train(1),move_forward,40) action(train(1),move_forward,41) action(train(1),move_forward,42) action(train(1),move_forward,43) action(train(1),move_forward,44) action(train(1),move_forward,45) action(train(1),move_forward,46) action(train(1),move_forward,47) action(train(1),move_forward,48) action(train(1),move_forward,49) action(train(1),move_forward,50) action(train(0),move_forward,21) action(train(0),move_forward,22) action(train(0),move_forward,23) action(train(0),move_forward,24) action(train(0),move_forward,25) action(train(0),move_forward,26) action(train(0),move_forward,27) action(train(0),move_forward,28) action(train(0),move_forward,29) action(train(0),move_forward,30) action(train(0),move_forward,31) action(train(0),move_forward,32) action(train(0),move_forward,33) action(train(0),move_forward,34) action(train(0),move_forward,36) action(train(0),move_forward,37) action(train(0),move_forward,40) action(train(0),move_forward,41) action(train(0),move_forward,42) action(train(0),move_forward,43) action(train(0),move_forward,44) action(train(0),move_forward,45) action(train(0),move_forward,46) action(train(0),move_forward,47) action(train(0),move_forward,48) action(train(0),move_forward,49) action(train(0),move_forward,50) action(train(0),move_forward,51) action(train(0),move_forward,19) action(train(2),move_forward,86) action(train(2),move_forward,87) action(train(2),move_forward,88) action(train(2),move_forward,89) action(train(2),move_forward,90) action(train(2),move_forward,91) action(train(2),move_forward,92) action(train(2),move_forward,93) action(train(2),move_forward,94) action(train(2),move_forward,95) action(train(2),move_forward,96) action(train(2),move_forward,84) action(train(3),move_forward,61) action(train(3),move_forward,62) action(train(3),move_forward,63) action(train(3),move_forward,64) action(train(3),move_forward,65) action(train(3),move_forward,66) action(train(3),move_forward,67) action(train(3),move_forward,68) action(train(3),move_forward,69) action(train(3),move_forward,70) action(train(3),move_forward,71) action(train(3),move_forward,73) action(train(3),move_forward,74) action(train(3),move_forward,75) action(train(3),move_forward,76) action(train(3),move_forward,78) action(train(3),move_forward,79) action(train(3),move_forward,80) action(train(3),move_forward,81) action(train(3),move_forward,82) action(train(3),move_forward,83) action(train(3),move_forward,84) action(train(3),move_forward,85) action(train(3),move_forward,86) action(train(3),move_forward,88) action(train(3),move_forward,89) action(train(3),move_forward,90) action(train(3),move_forward,91) action(train(3),move_forward,92) action(train(3),move_forward,93) action(train(3),move_forward,94) action(train(3),move_forward,95) action(train(3),move_forward,96) action(train(3),move_forward,97) action(train(3),move_forward,98) action(train(3),move_forward,99) action(train(3),move_forward,100) action(train(3),move_forward,101) action(train(3),move_forward,102) action(train(3),move_forward,103) action(train(3),move_forward,104) action(train(3),move_forward,105) action(train(3),move_forward,106) action(train(3),move_forward,107) action(train(3),move_forward,108) action(train(3),move_forward,109) action(train(3),move_forward,110) action(train(3),move_forward,111) action(train(3),move_forward,112) action(train(3),move_forward,113) action(train(3),move_forward,114) action(train(3),move_forward,115) action(train(3),move_forward,116) action(train(3),move_forward,117) action(train(3),move_forward,119) action(train(3),move_forward,120) action(train(3),move_forward,121) action(train(0),move_forward,15) action(train(2),move_forward,80) action(train(3),move_forward,55) action(train(0),move_right,16) action(train(0),move_forward,17) action(train(0),move_right,20) action(train(0),move_left,38) action(train(0),move_right,39) action(train(0),move_left,35) action(train(0),move_forward,14) action(train(1),move_forward,14) action(train(1),move_forward,15) action(train(1),move_right,16) action(train(1),move_right,19) action(train(1),move_left,30) action(train(1),move_left,20) action(train(1),move_right,28) action(train(1),move_right,37) action(train(2),move_right,81) action(train(2),move_forward,82) action(train(2),move_right,85) action(train(2),move_forward,79) action(train(3),move_forward,56) action(train(3),move_forward,57) action(train(3),move_left,59) action(train(3),move_left,72) action(train(3),move_left,118) action(train(3),move_right,60) action(train(3),move_right,77) action(train(3),move_left,87) action(train(3),move_forward,54)
+SATISFIABLE
+
+Models       : 1+
+Calls        : 1
+Time         : 129.300s (Solving: 47.26s 1st Model: 47.26s Unsat: 0.00s)
+CPU Time     : 108.325s
