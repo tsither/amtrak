@@ -18,7 +18,6 @@ track_option(72,(w,move_forward,n)).
 track_option(2064,(e,move_forward,n)).
 track_option(2064,(s,move_forward,w)).
 
-
 % Track type 6
 track_option(20994,(n,move_right,e)).
 track_option(20994,(n,move_left,w)).
