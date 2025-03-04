@@ -55,6 +55,14 @@ done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
 % all trains must arrive at its end destination
 :- train(ID), not done(ID,_).
 
+%%%%%%%% Stops %%%%%%%%
+
+% when a train reaches one of its stops added a stopped
+stopped(ID,(X,Y),T) :- at(ID,(X,Y),T,_), stop(ID,(X,Y)).
+
+% all trains must arrive at each of its stops
+:- train(ID), not stopped(ID,_,_), stop(ID,_).
+
 %%%%%%%% Optimization %%%%%%%%
 
 #maximize{ 1, ID, T: done(ID,T) }.
@@ -62,3 +70,10 @@ done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #show action/3.
+#show done/2.
+#show at/4.
+#show end/3.
+#show stopped/3.
+% #show track_option/2.
+#show option/5.
+
