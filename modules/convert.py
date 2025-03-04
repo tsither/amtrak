@@ -49,6 +49,7 @@ def convert_to_clingo(env, num_stops=0) -> str:
                 continue
             clingo_str += f"stop({agent_num},{stop_to_add}). "
             not_stops.append(stop_to_add)
+        clingo_str += "\n"
 
     clingo_str += "\n"
     clingo_str += cells_str

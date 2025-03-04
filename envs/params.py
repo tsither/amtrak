@@ -2,7 +2,7 @@
 width = 40
 height = 40
 number_of_agents = 2
-number_of_stops = 1
+number_of_stops = 0
 max_num_cities = 2
 seed = 1
 grid_mode = False
