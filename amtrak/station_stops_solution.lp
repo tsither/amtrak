@@ -61,7 +61,7 @@ done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
 stopped(ID,(X,Y),T) :- at(ID,(X,Y),T,_), stop(ID,(X,Y)).
 
 % all trains must arrive at each of its stops
-:- train(ID), not stopped(ID,_,_), stop(ID,_).
+:- train(ID), not stopped(ID,(X,Y),_), stop(ID,(X,Y)).
 
 %%%%%%%% Optimization %%%%%%%%
 
@@ -70,10 +70,11 @@ stopped(ID,(X,Y),T) :- at(ID,(X,Y),T,_), stop(ID,(X,Y)).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #show action/3.
-#show done/2.
-#show at/4.
-#show end/3.
-#show stopped/3.
-% #show track_option/2.
-#show option/5.
 
+%%% Uncomment for use with utils/edit_output.py %%%
+% #show done/2.
+% #show at/4.
+% #show end/3.
+% #show stopped/3.
+% #show option/5.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

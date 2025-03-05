@@ -2,11 +2,11 @@ import re
 import subprocess
 import logging
 
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-logging.basicConfig(filename='output.log', level=logging.DEBUG)
 
-ENV = 'env_005--2_2'
+# logging.basicConfig(filename='amtrak/utils/edit_output.log', level=logging.DEBUG)
+# logger = logging.getLogger()
+
+ENV = 'env_001--2_2'
 
 log_strs = []
 
@@ -109,4 +109,4 @@ except IndexError:
 
 
 print('\n'.join(log_strs))
-# logging.info('\n'.join(log_strs))
+# logger.info('\n'.join(log_strs))

@@ -62,3 +62,11 @@ done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #show action/3.
+
+%%% Uncomment lines below to use with utils/edit_output.py %%%
+% #show done/2.
+% #show at/4.
+% #show end/3.
+% #show stopped/3.
+% #show option/5.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
