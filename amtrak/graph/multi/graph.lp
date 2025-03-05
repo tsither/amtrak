@@ -1,8 +1,3 @@
-% #include "test_envs/test_env_2/test_env_2.lp".
-% #include "/Users/mymac/Desktop/Trains/flatland/envs/lp/env_009--4_3.lp".
-% #include "/Users/mymac/Desktop/Trains/flatland/amtrak/graph/saved_outputs/test_custom.lp".
-% #include "build_edges.lp".
-
 
 % This file builds a weighted graph from a flatland environment .lp
 
@@ -105,9 +100,10 @@ move(e,w, move_forward).
 move(n,s, move_forward).
 
 
-wait_time(0).
+% wait_time(0).
 % wait_time(1).
 % wait_time(2).
+% wait_time(3).
 % wait_time(4).
 % wait_time(6).
 % wait_time(8).

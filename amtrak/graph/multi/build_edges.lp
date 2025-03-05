@@ -31,4 +31,52 @@ edge(S, F, (OUT,IN), L) :-       % S = start node ; F = end node ; OUT = outgoin
     node(F,_),
     S!=F.
 
-#show edge/4.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%% Generate next possible nodes from entire graph %%%%%%%%%%
+
+% If node is a 'decision point', agent has multiple next nodes it can reach (depending on the action)
+% IF LENGTH IS > 1, TRAIN CAN WAIT
+
+next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), Action, next(Next_Node), dist(Next_Length)) :- 
+
+        edge(_, Current_Node, (_,IN_Current), _), 
+        edge(Current_Node, Next_Node, (OUT_Current,IN_Next), Next_Length),
+        Next_Length > 1,
+            node(Current_Node, (IN_Current,OUT_Current)), 
+            move(IN_Current, OUT_Current, Action),      % Get action if decision point
+                decision_point(Current_Node,in(IN_Current)).
+
+% IF EDGE LENGTH BETWEEN TWO NODES IS 1, NO OPTION FOR WAITING, TRAIN MUST MOVE FORWARD
+next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), Action, next(Next_Node), dist(Next_Length)) :- 
+
+        edge(_, Current_Node, (_,IN_Current), _), 
+        edge(Current_Node, Next_Node, (OUT_Current,IN_Next), Next_Length),
+        Next_Length = 1,
+            node(Current_Node, (IN_Current,OUT_Current)), 
+            move(IN_Current, OUT_Current, Action),      % Get action if decision point
+                decision_point(Current_Node,in(IN_Current)).
+
+
+% agents must move forward at nodes that aren't decision points
+next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), move_forward, next(Next_Node), dist(Next_Length)) :- 
+
+        edge(_, Current_Node, (_,IN_Current), _), 
+        edge(Current_Node, Next_Node, (OUT_Current,IN_Next), Next_Length),
+        Next_Length > 1,
+            node(Current_Node, (IN_Current,OUT_Current)), 
+                not decision_point(Current_Node,in(IN_Current)).
+
+
+next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), move_forward, next(Next_Node), dist(Next_Length)) :- 
+
+        edge(_, Current_Node, (_,IN_Current), _), 
+        edge(Current_Node, Next_Node, (OUT_Current,IN_Next), Next_Length),
+        Next_Length=1,
+            node(Current_Node, (IN_Current,OUT_Current)), 
+                not decision_point(Current_Node,in(IN_Current)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% #show next_possible_node/5.
+% #show edge/4.

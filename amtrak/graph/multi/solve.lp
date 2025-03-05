@@ -11,6 +11,7 @@ import clingo
 
 def main(prg):
     instance = "/Users/mymac/Desktop/Trains/flatland/envs/lp/env_009--4_3.lp"
+    #instance = "/Users/mymac/Desktop/Trains/flatland/amtrak/graph/test_envs/custom_test3.lp"
     #instance = "/Users/mymac/Desktop/Trains/flatland/envs/lp/env_010--4_3.lp"
     #instance =  "../test_envs/test_env_2/test_env_2.lp"
 
@@ -25,17 +26,25 @@ def main(prg):
     graph_builder.ground([("base", [])])
 
     edge_atoms = []
+    npn_atoms = []
     def on_model(model):
         nonlocal edge_atoms
+        nonlocal npn_atoms
         for atom in model.symbols(shown=True):
             if atom.name == "edge":
                 edge_atoms.append(atom)
+            if atom.name == "next_possible_node":
+                npn_atoms.append(atom)
 
     graph_builder.solve(on_model=on_model)
 
     # Now add these edge atoms as facts to the main program
     for atom in edge_atoms:
         prg.add("base", [], str(atom) + ".")
+    
+    for npn in npn_atoms:
+        prg.add("base", [], str(npn) + ".")
+
 
     # Ground and solve the main program
     prg.ground([("base", [])])
@@ -44,175 +53,139 @@ def main(prg):
 
 
 
+% #include "/Users/mymac/Desktop/Trains/flatland/amtrak/graph/test_envs/custom_test3.lp".
+
 #include "/Users/mymac/Desktop/Trains/flatland/envs/lp/env_009--4_3.lp".
 % #include "/Users/mymac/Desktop/Trains/flatland/envs/lp/env_010--4_3.lp".
 % #include "../test_envs/test_env_2/test_env_2.lp".
-#include "/Users/mymac/Desktop/Trains/flatland/amtrak/graph/multi/graph.lp".
+% #include "/Users/mymac/Desktop/Trains/flatland/amtrak/graph/multi/graph.lp".
+% #include "/Users/mymac/Desktop/Trains/flatland/amtrak/graph/multi/build_edges.lp".
 
 
 
-
-% First node action from starting node to first node
-{ node_action(train(ID), Start_Node, move_forward, ("N/A", OUT_Current, IN_Next), Next_Node, (dep(Start_Time),dist(Edge_Length), arr(Start_Time + Wait_Time + Edge_Length))) : wait_time(Wait_Time)} = 1 :- 
-    edge(Start_Node, Next_Node, (OUT_Current,IN_Next), Edge_Length), 
-    start(ID,Start_Node,Start_Time,OUT_Current),
-    Edge_Length>1.
-
-node_action(train(ID), Start_Node, move_forward, ("N/A", OUT_Current, IN_Next), Next_Node, (dep(Start_Time),dist(1), arr(Start_Time + 1)))  :- 
-    edge(Start_Node, Next_Node, (OUT_Current,IN_Next), 1), 
-    start(ID,Start_Node,Start_Time,OUT_Current).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%% Generate next possible nodes from current position %%%%%%%%%%
-
-% If node is a 'decision point', agent has multiple next nodes it can reach (depending on the action)
-% IF LENGTH IS > 1, TRAIN CAN WAIT
-next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), Action, next(Next_Node), (dist(Next_Length), time(Next_Length))) :- 
-
-        edge(_, Current_Node, (_,IN_Current), _), 
-        edge(Current_Node, Next_Node, (OUT_Current,IN_Next), Next_Length),
-        Next_Length > 1,
-            node(Current_Node, (IN_Current,OUT_Current)), 
-            move(IN_Current, OUT_Current, Action),      % Get action if decision point
-                decision_point(Current_Node,in(IN_Current)).
-
-% IF EDGE LENGTH BETWEEN TWO NODES IS 1, NO OPTION FOR WAITING, TRAIN MUST MOVE FORWARD
-next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), Action, next(Next_Node), (dist(Next_Length), time(Next_Length))) :- 
-
-        edge(_, Current_Node, (_,IN_Current), _), 
-        edge(Current_Node, Next_Node, (OUT_Current,IN_Next), Next_Length),
-        Next_Length = 1,
-            node(Current_Node, (IN_Current,OUT_Current)), 
-            move(IN_Current, OUT_Current, Action),      % Get action if decision point
-                decision_point(Current_Node,in(IN_Current)).
-
-
-% agents must move forward at nodes that aren't decision points
-next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), move_forward, next(Next_Node), (dist(Next_Length), time(Next_Length))) :- 
-
-        edge(_, Current_Node, (_,IN_Current), _), 
-        edge(Current_Node, Next_Node, (OUT_Current,IN_Next), Next_Length),
-        Next_Length > 1,
-            node(Current_Node, (IN_Current,OUT_Current)), 
-            % move(IN_Current, OUT_Current, Action),
-                not decision_point(Current_Node,in(IN_Current)).
-
-
-next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), move_forward, next(Next_Node), (dist(Next_Length), time(Next_Length))) :- 
-
-        edge(_, Current_Node, (_,IN_Current), _), 
-        edge(Current_Node, Next_Node, (OUT_Current,IN_Next), Next_Length),
-        Next_Length=1,
-            node(Current_Node, (IN_Current,OUT_Current)), 
-            % move(IN_Current, OUT_Current, Action),
-                not decision_point(Current_Node,in(IN_Current)).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%% Generate Node actions, precursor to 'actions' atom %%%%%%%%%%%%%%%%%%%%%%
 
- {node_action(train(ID), Current_Node, Action, (IN_Current,OUT_Current,IN_Next), Next_Node, (dep(Current_Time),dist(Dist), arr(Current_Time + Next_edge_time))) }  :- 
-
-    % Get next possible nodes given current position
-    next_possible_node(at(Current_Node), (IN_Current,OUT_Current,IN_Next), Action, next(Next_Node), (dist(Dist), time(Next_edge_time))),
-
-    % Get Current_Node
-    node_action(train(ID), Prev_Node, _, (_,_,IN_Current), Current_Node, (dep(Prev_time), dist(_), arr(Current_Time))), 
-    
-    % Get Next_Time
-    end(ID,End_node,End_time),
-    % Stopping condition
-    Current_Time + Dist <= End_time,
-    Current_Node!=End_node,
-    not node_action(train(ID), End_node, _, _, _, (_,_,_)).
-
-% There can't be two actions on the same node at the same time              ---> How to put this constraint into head of previous rule? 
-:- node_action(train(ID), Current_Node, A1, _, _, (dep(Time),_,_)), node_action(train(ID), Current_Node, A2, _, _, (dep(Time),_,_)), A1!=A2.
-
-% Two trains cant arrive on the same node at the same time
-:- node_action(train(ID1), _, _, _, Next_Node, (_,_,arr(Time))), node_action(train(ID2), _, _, _, Next_Node, (_,_,arr(Time))), ID1!=ID2.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%% Generate 'action' atoms %%%%%%%%%%%%%%%%%%%%%%
-
-% Different cases to create action atoms: 
-
-% 1. Generate actions departing all nodes
-% 2. Populate move_forwards from node to node if train doesn't wait
-% 3. Populate move_forwards from nodes to wait_nodes if train waits at some point
-% 4. Add last move_forward from wait_node to next_node if train waits
-% 5. Add appropriate number of waiting actions if train waits
 
 
-% Generate actions at all nodes (starting cell, ending cell, junctions)
+wait_time(0).
+wait_time(1).
+% wait_time(2).
+% wait_time(3).
+% wait_time(4).
+% wait_time(6).
+% wait_time(8).
+% wait_time(10).
+d(s,n).
+d(n,s).
+d(e,w).
+d(w,e).
 
-% 1. Actions LEAVING all nodes
-action(train(ID), Action, Current_Time) :- 
-    % ID=0,
-    node_action(train(ID), Current_Node, Action, _, Next_Node, (dep(Current_Time), dist(Dist), arr(Next_Time))),
-    end(ID,End_Node,_),                     
-    Current_Node!= End_Node.            
-    
-% 2.  Populating node to node - IF NO WAITING
-action(train(ID), move_forward, T) :- 
-    % ID=0,
-    node_action(train(ID), Current_Node, Action, _, Next_Node, (dep(Current_Time),dist(Dist), arr(Arrival_Time))),
-    Dist + Current_Time = Arrival_Time,         % implies NO WAITING
-    T = Current_Time+1..Arrival_Time-1.         % Iterate over entire edge length 
+% Represents a train on a node and a time step, 'IN' is incoming direction, necessary for correct node transitions
+at_node(train(ID),Start_Node, IN, Time+1) :- start(ID,Start_Node,Time,OUT), d(IN,OUT). % use 'd' to get incoming direction on start nodes
 
-% 3.  Node to wait cell - IF WAITING
-action(train(ID), move_forward, T) :- 
-    
-    node_action(train(ID), Current_Node, Action, _, Next_Node, (dep(Current_Time),dist(Dist), arr(Arrival_Time))),
-    Dist + Current_Time < Arrival_Time,         % implies WAITING   
-    Start_forward = Current_Time + 1,
-    End_forward = Current_Time + Dist - 2,
-    T = Start_forward..End_forward.                 % Iterate from after train has left node to the distance of the wait cell
-
-% 4. Waiting on wait cell - IF WAITING
-action(train(ID), wait, T) :- 
-    ID=0,
-    node_action(train(ID), Current_Node, Action, _, Next_Node, (dep(Current_Time),dist(Dist), arr(Arrival_Time))),
-    Current_Time + Dist < Arrival_Time,                        % implies WAITING
-    End_forward = Current_Time + Dist - 2,                       % Populate wait actions between the time steps where the arrival time for that edge is greater than the Length of that edge
-    T = End_forward+1..Arrival_Time-2.    
-
-% 5.  Wait cell to node - IF WAITING
-action(train(ID), move_forward, T) :- 
-    ID=0,
-    node_action(train(ID), Current_Node, Action, _, Next_Node, (dep(Current_Time),dist(Dist), arr(Arrival_Time))),
-    Dist + Current_Time < Arrival_Time,         % implies WAITING
-    T = Arrival_Time-1.                         % Must be a move_forward before arriving at next node from wait cell
+% First node action, from start node
+node_action(train(ID), Start_Node, IN, move_forward) :- start(ID,Start_Node,Time,OUT), d(IN,OUT).
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Can only wait if edge is greater than 1 (NO WAITING ON NODES)
+at_node(train(ID), Current_Node, IN_Current, Current_Time ) :- 
 
-% % Mark a train as arrived 
-arrived(ID,Arrival_Time) :- end(ID,End_node,End_time), node_action(train(ID), _, _, _, End_node, (_,_,arr(Arrival_Time))).
+    at_node(train(ID), Prev_Node, IN_Prev, Prev_Time),  Current_Time = Prev_Time + 1,
 
-% % % Trains must arrive at end station
+    node_action(train(ID), Prev_Node, IN_Prev, Action),
+
+    end(ID,End_Node,End_time),
+    Current_Time <= End_time,
+    next_possible_node(at(Prev_Node), (IN_Prev,OUT_Prev,IN_Current), Action, next(Current_Node), dist(1)).
+
+
+% Allowed to wait if edge > 1
+{at_node(train(ID), Current_Node, IN_Current, Current_Time + Wait_Time) : wait_time(Wait_Time) } = 1 :- 
+
+    % Retrieve previous time
+    at_node(train(ID), Prev_Node, IN_Prev, Prev_Time),  Current_Time = Prev_Time + Dist,
+
+    % Previous node action maps us to 'next_possible_node' lookup table
+    node_action(train(ID), Prev_Node, IN_Prev, Action),
+    Dist>1,
+    end(ID,End_Node,End_time),
+    Current_Time <= End_time,
+
+    % Transition function or lookup table, give us distance of previous edge
+    next_possible_node(at(Prev_Node), (IN_Prev,OUT_Prev,IN_Current), Action, next(Current_Node), dist(Dist)).
+
+
+% Trains can choose only 1 action of possible available actions on each node
+{ node_action(train(ID), Current_Node, IN_Current, Action) : next_possible_node(at(Current_Node), (IN_Current,_,_), Action, next(_), dist(Dist)) } = 1 :-  
+
+    at_node(train(ID), Current_Node, IN_Current, Current_Time),
+    end(ID,End_Node,End_time),
+    Current_Node!=End_Node,
+    Current_Time < End_time.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Necessary Constraints %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Mark a train as arrived 
+arrived(ID,Arrival_Time) :- end(ID,End_Node,End_time), at_node(train(ID),End_Node,_,Arrival_Time).
+
+% Mark a train as delayed if it went beyond its time horizon
+delayed(ID) :- arrived(ID,Arrival_Time), end(ID,_,End_time), Arrival_Time>End_time.
+
+
+% Two types of conflicts : 'collisions' on nodes and on edges...
+% Two trains can't be on the same node at once
+% node_collision :- ID1>ID2,               
+%     at_node(train(ID1), Current_Node, _, Current_Time),
+%     at_node(train(ID2), Current_Node, _, Current_Time).
+
+% % Trains can't overlap on edges, causes collision
+% edge_collision :- ID1 != ID2,
+%     at_node(train(ID1), NodeA, IN_A_1, DepTime1),
+%     at_node(train(ID1), NodeB, IN_B_1, ArrTime1),
+
+%     at_node(train(ID2), NodeB, IN_B_2, DepTime2),
+%     at_node(train(ID2), NodeA, IN_A_2, ArrTime2),
+
+%     node_action(train(ID1), NodeA, IN_A_1, Action1),
+%     node_action(train(ID2), NodeB, IN_B_2, Action2),
+
+%     next_possible_node(at(NodeA), (IN_A_1,_,_), Action1, next(NodeB), dist(Dist)),
+%     next_possible_node(at(NodeB), (IN_B_2,_,_), Action2, next(NodeA), dist(Dist)),
+
+%     DepTime1 < ArrTime2,
+%     DepTime2 < ArrTime1.
+% STEP 1: Define when a train occupies an edge
+% train_on_edge(ID, NodeA, NodeB, StartTime, EndTime) :-
+%     at_node(train(ID), NodeA, DirA, StartTime),
+%     at_node(train(ID), NodeB, DirB, EndTime),
+%     node_action(train(ID), NodeA, DirA, Action),
+%     next_possible_node(at(NodeA), (DirA,_,_), Action, next(NodeB), dist(_)),
+%     StartTime < EndTime.  % Ensure proper time direction
+
+% STEP 2: Check for edge collisions using interval overlap
+% Same edge, any direction
+% edge_collision :-
+%     train_on_edge(ID1, NodeA, NodeB, Start1, End1),
+%     train_on_edge(ID2, NodeC, NodeD, Start2, End2),
+%     ID1 < ID2,
+%     ((NodeA = NodeC, NodeB = NodeD) ; (NodeA = NodeD, NodeB = NodeC)),
+%     Start1 < End2,  % Train 1 starts before Train 2 finishes
+%     Start2 < End1.  % Train 2 starts before Train 1 finishes
+
+
+#show at_node/4.
+
+% #show node_collision/0.
+% #show edge_collision/0.
+:- node_collision.
+:- edge_collision.
+
+% Trains must arrive at end station
 :- not arrived(ID,_), train(ID).
 
+:- delayed(ID).
 
-% % % Mark a train as delayed if it went beyond its time horizon
-% delayed(ID) :- arrived(ID,Arrival_Time), end(ID,End_node,End_time), Arrival_Time>=End_time.
-
-% :- delayed(ID).
-
-% #minimize{ 1: action(ID,wait,T) }.
-
-
-% #show action/3.
-% #show node_action/6.
-% #show next_possible_node/5.
-#show arrived/2.
-
-% at_node(0,Node,Arrival_Time, Action) :- node_action(train(0),_, Action, _, Node, (_,_,arr(Arrival_Time))).
-% #show edge/4.
-% #show at_node/4.
-% #show end/3.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
