@@ -28,13 +28,14 @@ d(e,w).
 d(w,e).
 
 % Represents a train on a node and a time step, 'IN' is incoming direction, necessary for correct node transitions
-at_node(train(ID),Start_Node, IN, Time+1) :- start(ID,Start_Node,Time,OUT), d(IN,OUT).
+at_node(train(ID),Start_Node, IN, Time+1) :- start(ID,Start_Node,Time,OUT), d(IN,OUT). % use 'd' to get incoming direction on start nodes
 
+% First node action, from start node
 node_action(train(ID), Start_Node, IN, move_forward) :- start(ID,Start_Node,Time,OUT), d(IN,OUT).
 
 
 
-% Can only wait if edge is greater than 1
+% Can only wait if edge is greater than 1 (NO WAITING ON NODES)
 at_node(train(ID), Current_Node, IN_Current, Current_Time ) :- 
 
     at_node(train(ID), Prev_Node, IN_Prev, Prev_Time),  Current_Time = Prev_Time + 1,
@@ -46,8 +47,7 @@ at_node(train(ID), Current_Node, IN_Current, Current_Time ) :-
     next_possible_node(at(Prev_Node), (IN_Prev,OUT_Prev,IN_Current), Action, next(Current_Node), dist(1)).
 
 
-
-% Can only wait if edge is greater than 1
+% Allowed to wait if edge > 1
 {at_node(train(ID), Current_Node, IN_Current, Current_Time + Wait_Time) : wait_time(Wait_Time) } = 1 :- 
 
     % Retrieve previous time
