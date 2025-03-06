@@ -86,7 +86,7 @@ def main():
         opts_str = f'{opts_str}\n'
 
     opts_str = f'{opts_str}\n{WAIT_GEN}'
-    with open('amtrak/wait/track_option_wait_all.lp', 'w') as f:
+    with open('amtrak/track_options.lp', 'w') as f:
         f.write(opts_str)
 
 
