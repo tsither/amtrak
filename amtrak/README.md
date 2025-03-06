@@ -52,3 +52,16 @@ If successful, the output will be saved as a `.gif` (which by the way is pronoun
 
 ### station_stops_solution
 
+#### Environment Generation
+
+Unforunatly only the generation of the environment lp files is currently possible. In order to generate environments with stops, simply change the `number_of_stops` in envs/params.py to the number of stops you want to introduce per train and run build as usual:
+
+```
+python build.py 3
+```
+
+When generating lp files, pkl and png files will also be generated as normally (the process of lp file generation is currently dependant on the pkl file generation and could not be decoupled within the scope of this project), but since they will lack the stops functionality they should be ignored.  To run the implementation 
+
+
+
+

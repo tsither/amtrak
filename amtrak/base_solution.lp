@@ -33,7 +33,7 @@ at(ID,(X,Y),Dep-1,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
 
 % add at atoms for each trains' position at each time step
 at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T+1), time(T+1),
-    option((X1,Y1),(X2,Y2),D1,M,D2), at(ID,(X1,Y1),T,D1).% , T > StartT, start(ID,_,StartT,_).
+    option((X1,Y1),(X2,Y2),D1,M,D2), at(ID,(X1,Y1),T,D1).
 
 %%%%%%%% Constraining Movements %%%%%%%%
 

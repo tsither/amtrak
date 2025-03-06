@@ -1,4 +1,3 @@
-from copy import copy
 from random import shuffle
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_env import RailEnvActions
@@ -31,7 +30,6 @@ def convert_to_clingo(env, num_stops=0) -> str:
         cells_str += "\n"
 
     for agent_num, agent_info in enumerate(env.agents):
-        poss_stops_for_agent = copy(poss_stops)
         init_y, init_x = agent_info.initial_position
         goal_y, goal_x = agent_info.target
         min_start, max_end = agent_info.earliest_departure, agent_info.latest_arrival
@@ -44,10 +42,12 @@ def convert_to_clingo(env, num_stops=0) -> str:
         clingo_str += f"end({agent_num},({goal_y},{goal_x}),{max_end}). "
         clingo_str += f"speed({agent_num},{speed}).\n"
 
-        poss_stops_for_agent.remove(f"({init_y},{init_x})")
-        poss_stops_for_agent.remove(f"({goal_y},{goal_x})")
+        if f"({init_y},{init_x})" in poss_stops:
+            poss_stops.remove(f"({init_y},{init_x})")
+        if f"({goal_y},{goal_x})" in poss_stops:
+            poss_stops.remove(f"({goal_y},{goal_x})")
         for _ in range(num_stops):
-            shuffle(poss_stops_for_agent)
+            shuffle(poss_stops)
             stop_to_add = poss_stops.pop()
             clingo_str += f"stop({agent_num},{stop_to_add}). "
         clingo_str += "\n"
