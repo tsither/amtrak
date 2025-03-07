@@ -50,7 +50,8 @@ def convert_to_clingo(env, num_stops=0) -> str:
             shuffle(poss_stops)
             stop_to_add = poss_stops.pop()
             clingo_str += f"stop({agent_num},{stop_to_add}). "
-        clingo_str += "\n"
+        if num_stops > 0:
+            clingo_str += "\n"
 
     clingo_str += "\n"
     clingo_str += cells_str

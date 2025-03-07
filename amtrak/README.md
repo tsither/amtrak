@@ -18,7 +18,7 @@ pip install -r doc/requirements.txt
 conda install -c conda-forge clingo
 # or if that doesn't work:
 # conda install -c potassco clingo
-
+```
 
 ## Project Structure
 
@@ -35,9 +35,9 @@ To run either the base_solution or graph_based_TODO implementations, uncomment t
 
 ```
 TODO: fill in with params
-primary = ['amtrak/base_solution.lp', 'amtrak/track_options.lp']
+TODO: have Ted fill in the right params to run the graph based solution
+# primary = ['amtrak/base_solution.lp', 'amtrak/track_options.lp']
 secondary = []
-
 ```
 
 The `primary` parameter is necessary, and is the standard suite of path planning encodings that return the appropriate `action(...)` output.  The `secondary` parameter is optional, and is primarily used when malfunctions are present in an environment.  Developers may choose to create a set of secondary encodings that help the replanning process necessary when faced with a train that has stalled.  For instance, it may be more efficient to consider the existing plan than to replan from the start.  More information about this is available in the 📁 `doc` folder.  If malfunctions are active and no `secondary` encoding is provided, the tooltik will call the `primary` set of encodings.
@@ -60,7 +60,7 @@ Unforunatly only the generation of the environment lp files is currently possibl
 python build.py 3
 ```
 
-When generating lp files, pkl and png files will also be generated as normally (the process of lp file generation is currently dependant on the pkl file generation and could not be decoupled within the scope of this project), but since they will lack the stops functionality they should be ignored.  To run the implementation 
+When generating lp files, pkl and png files will also be generated as normally (the process of lp file generation is currently dependant on the pkl file generation and could not be decoupled within the scope of this project), but since they will lack the stops functionality they should be ignored.  To run the implementation with stops, 
 
 
 

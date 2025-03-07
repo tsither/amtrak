@@ -23,16 +23,20 @@ option((X,Y),(X,Y),D,wait,D) :- track_option(Track,(D,wait,D)),
 
 %%%%%%%% Movement Generation %%%%%%%%
 
-% at thier departure time trains should be found at their starting position
-at(ID,(X,Y),Dep-1,Dir) :- time(Dep), start(ID,(X,Y),Dep,Dir).
-:- XY1 != XY2 , at(ID,XY2,T,_), start(ID,XY1,T,_).
+% until a train's start time step they should wait
+action(train(ID),wait,T) :- time(T), T < StartT, start(ID,_,StartT,_).
+
+% on a train's start time it should move forward onto its starting cell
+action(train(ID),move_forward,StartT) :- start(ID,_,StartT,_).
+at(ID,(X,Y),StartT+1,D) :- start(ID,(X,Y),StartT,D).
 
 % add action atoms based on train position and cell options
-{ action(train(ID),M,T+1): option((X1,Y1),(X2,Y2),D1,M,D2) } = 1 :-
-    at(ID,(X1,Y1),T,D1), T < EndT, end(ID,_,EndT).% , not done(ID,T).
+{ action(train(ID),M,T): option((X1,Y1),(X2,Y2),D1,M,D2) } = 1 :-
+    at(ID,(X1,Y1),T,D1), StartT < T < EndT, end(ID,_,EndT),
+    start(ID,_,StartT,_).
 
 % add at atoms for each trains' position at each time step
-at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T+1), time(T+1),
+at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T), time(T+1),
     option((X1,Y1),(X2,Y2),D1,M,D2), at(ID,(X1,Y1),T,D1).
 
 %%%%%%%% Constraining Movements %%%%%%%%
@@ -47,7 +51,7 @@ at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T+1), time(T+1),
 %%%%%%%% End Destinations %%%%%%%%
 
 % when a train reaches its end destination add a done
-done(ID,T+1) :- at(ID,(X,Y),T,_), end(ID,(X,Y),EndT), T<=EndT.
+done(ID,T) :- at(ID,(X,Y),T,_), end(ID,(X,Y),EndT), T<EndT.
 
 % and add a done for each time step after reaching end destination
 done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
@@ -67,6 +71,5 @@ done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
 % #show done/2.
 % #show at/4.
 % #show end/3.
-% #show stopped/3.
 % #show option/5.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
