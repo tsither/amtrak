@@ -62,6 +62,7 @@ def process(result):
     for line in output:
         for short_key in sorted_atoms.keys():
             for key in sorted_atoms[short_key].keys():
+                line = line.replace('1\n', '')
                 if line[:len(key)] == key:
                     sorted_atoms[short_key][key].append(f'{line}.')
 

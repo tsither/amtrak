@@ -224,14 +224,3 @@ if __name__ == '__main__':
     main()
     # solve_problem_lps()
     # clean_up()
-
-
-# python3 amtrak/utils/test_stops.py
-
-# python3 amtrak/utils/test_stops.py
-
-# python3 amtrak/utils/test_stops.py
-
-
-# TODO: need to figure out how many of the ran out of times are actually a problem with the stops logic and how many of them just take a while
-# currently they're counted as successful but maybe they should just be excluded?

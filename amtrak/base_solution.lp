@@ -23,7 +23,7 @@ option((X,Y),(X,Y),D,wait,D) :- track_option(Track,(D,wait,D)),
 
 %%%%%%%% Movement Generation %%%%%%%%
 
-% until a train's start time step they should wait
+% until a train's start time step it should wait
 action(train(ID),wait,T) :- time(T), T < StartT, start(ID,_,StartT,_).
 
 % on a train's start time it should move forward onto its starting cell
@@ -38,6 +38,9 @@ at(ID,(X,Y),StartT+1,D) :- start(ID,(X,Y),StartT,D).
 % add at atoms for each trains' position at each time step
 at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T), time(T+1),
     option((X1,Y1),(X2,Y2),D1,M,D2), at(ID,(X1,Y1),T,D1).
+
+% after a train's end time step it should wait
+action(train(ID),wait,T) :- done(ID,T).
 
 %%%%%%%% Constraining Movements %%%%%%%%
 
@@ -54,7 +57,7 @@ at(ID,(X2,Y2),T+1,D2) :- action(train(ID),M,T), time(T+1),
 done(ID,T) :- at(ID,(X,Y),T,_), end(ID,(X,Y),EndT), T<EndT.
 
 % and add a done for each time step after reaching end destination
-done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<=EndT.
+done(ID,T+1) :- done(ID,T), end(ID,(X,Y),EndT), T+1<EndT.
 
 % all trains must arrive at its end destination
 :- train(ID), not done(ID,_).
