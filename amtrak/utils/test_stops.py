@@ -6,7 +6,7 @@ import subprocess
 from progressbar import progressbar
 
 
-logging.basicConfig(filename='amtrak/utils/output2.log',
+logging.basicConfig(filename='amtrak/utils/output.log',
                     level=logging.DEBUG)
 logger = logging.getLogger()
 
@@ -63,7 +63,7 @@ max_duration = 6
 
 
 def get_files(path='envs/lp'):
-    files = os.listdir('envs/lp')
+    files = os.listdir(path)
     for file_to_leave in LEAVE:
         if file_to_leave in files:
             files.remove(file_to_leave)
@@ -83,9 +83,12 @@ def build(num_builds):
             logger.warning(e)
 
 
-def call_solver(curr_env):
+def call_solver(curr_env, base=False):
+    encoding = 'amtrak/station_stops.lp'
+    if base is True:
+        encoding = 'amtrak/base.lp'
     encoded_results = subprocess.run(
-        ['clingo', 'amtrak/station_stops_solution.lp',
+        ['clingo', encoding,
          'amtrak/track_options.lp',
          curr_env
          ], stdout=subprocess.PIPE)
@@ -99,7 +102,6 @@ def handler(signum, frame):
     raise Exception('Clingo ran out of time!')
 
 
-# TODO: change output file before running
 def solve_problem_lps():
     unsat_count = 0
     timeout_count = 0
@@ -107,18 +109,27 @@ def solve_problem_lps():
     files = get_files('envs/problem_lps')
     logger.info('\n\n\n\n')
     for i in progressbar(range(len(files))):
+        if files[i][-4:] == '.png' or '40_' not in files[i]:
+            continue
         signal.signal(signal.SIGALRM, handler)
-        signal.alarm(120)
+        signal.alarm(240)
         logger.info('--------------------------------------------------')
         # curr_env = 'envs/lp/env_stop_{:03d}--2_2.lp'.format(i+1)
         curr_env = f'envs/problem_lps/{files[i]}'
         try:
-            full_results = call_solver(curr_env)
+            full_results = call_solver(curr_env, base=True)
             if 'UNSATISFIABLE' in full_results:
+                logger.info(f'{curr_env} was UNSAT with base solution')
                 unsat_count += 1
+                continue
             else:
-                solved_count += 1
-            logger.info('\n'.join(full_results.split('\n')[-8:-1]))
+                logger.info(f'{curr_env} was solved with base solution!!!')
+                full_results = call_solver(curr_env)
+                if 'UNSATISFIABLE' in full_results:
+                    unsat_count += 1
+                else:
+                    solved_count += 1
+                logger.info('\n'.join(full_results.split('\n')[-8:-1]))
         except Exception as exc:
             timeout_count += 1
             # print(curr_env, '-', exc)
@@ -223,4 +234,3 @@ if __name__ == '__main__':
     clean_up()
     main()
     # solve_problem_lps()
-    # clean_up()

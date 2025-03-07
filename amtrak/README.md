@@ -24,19 +24,19 @@ conda install -c conda-forge clingo
 
 Our project includes three different implementations:
 
-- `base_solution.lp` : our initial solution where movement is on a cell by cell basis ()
+- `base.lp` : our initial solution where movement is on a cell by cell basis ()
 - `graph_based_TODO.lp` : TODO
-- `station_stops_solution.lp` : our base solution adapted to accomodate station stop along along a train's journey
+- `station_stops.lp` : our base solution adapted to accomodate station stop along along a train's journey
 
 
-### base_solution and graph_based_TODO - Solver
+### base and graph Solutions - Solver
 
-To run either the base_solution or graph_based_TODO implementations, uncomment the appropriate line in asp/params.py and run the solver as normal:
+To run either the base solution or graph_based_TODO implementations, uncomment the appropriate line in asp/params.py and run the solver as normal:
 
 ```
 TODO: fill in with params
 TODO: have Ted fill in the right params to run the graph based solution
-# primary = ['amtrak/base_solution.lp', 'amtrak/track_options.lp']
+# primary = ['amtrak/base.lp', 'amtrak/track_options.lp']
 secondary = []
 ```
 
@@ -50,7 +50,7 @@ python solve.py envs/pkl/test.pkl
 If successful, the output will be saved as a `.gif` (which by the way is pronounced [/dʒɪf/](https://www.abc.net.au/news/2018-08-10/is-it-pronounced-gif-or-jif/10102374) according to the creator of the format) animation, as well as a log file that details at each step what occurred in the simulation.
 
 
-### station_stops_solution
+### station_stops Solution
 
 #### Environment Generation
 

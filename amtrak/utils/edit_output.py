@@ -91,7 +91,7 @@ def process(result):
     return sorted_atoms
 
 
-# encoded_result = subprocess.run(['clingo', 'amtrak/base_solution.lp', 'amtrak/track_options.lp',
+# encoded_result = subprocess.run(['clingo', 'amtrak/base.lp', 'amtrak/track_options.lp',
 #                                  f'envs/lp/{ENV}.lp'],
 #                                 stdout=subprocess.PIPE)
 
