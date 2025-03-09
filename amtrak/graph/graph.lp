@@ -1,8 +1,3 @@
-% #include "../test_envs/test_env_2/test_env_2.lp".
-% #include "/Users/mymac/Desktop/Trains/flatland/envs/lp/env_009--4_3.lp".
-% #include "/Users/mymac/Desktop/Trains/flatland/amtrak/graph/saved_outputs/test_custom.lp".
-% #include "build_edges.lp".
-
 
 % This file builds a weighted graph from a flatland environment .lp
 
@@ -52,34 +47,6 @@ connection(6672,    0, 0, 0, 0, 1, 1).
 
 cell_count(C) :- C = #count{ XY: cell((XY), Track), Track != 0}.
 
-
-
-%%%% links %%%%%
-% Connect adjacent cells to one another, includes outgoing and incoming directions (n,e,s,w)
-% NOTE: the directions in the links (e.g. (s,n)) denote on what cardinal end of the cell connects (for link(Cell_1),(Cell_2),(s,n))(s,n) the south point of cell 1 is connected to the north point of cell 2)
-
-link((X1,Y),(X2,Y),(s,n)) :- 
-    connection(Track_s, A1, _, _, B1, C1, _), 
-    1{A1=1;B1=1;C1=1}, % Contains south point
-    % A1+B1+C1>0,
-    connection(Track_n, A2, _, B2, _, _, C2), 
-    1{A2=1;B2=1;C2=1}, % Contains north point
-    % A2+B2+C2>0,
-    cell((X1,Y),Track_s), cell((X2,Y),Track_n),
-    X1 = X2 - 1.
-
-link((X2,Y),(X1,Y),(n,s)) :- link((X1,Y),(X2,Y),(s,n)).   % Reverse, if s/n connection exists, then n/s connection exists between adjacent cells
-
-link((X,Y1),(X,Y2),(e,w)) :- 
-    connection(Track_e, _, A1, B1, C1, _, _), 1{A1=1;B1=1;C1=1},          %  contains east point
-    connection(Track_w, _, A2, _, _, B2, C2), 1{A2=1;B2=1;C2=1},          %  contains west point
-    cell((X,Y1),Track_e),cell((X,Y2),Track_w),
-    Y1 = Y2 - 1.
-
-link((X,Y2),(X,Y1),(w,e)) :- link((X,Y1),(X,Y2),(e,w)), Y1!=Y2.     % Reverse
-
-
-
 %%%%%%%%%%%%% Misc Tools %%%%%%%%%%%%%
 
 actions(move_forward).
@@ -104,21 +71,17 @@ move(w,e, move_forward).
 move(e,w, move_forward).
 move(n,s, move_forward).
 
-
-% wait_time(0).
-% wait_time(1).
-% wait_time(2).
-% wait_time(3).
-% wait_time(4).
-% wait_time(6).
-% wait_time(8).
-% wait_time(10).
+% Choose how long trains are allowed to wait
+wait_time(0).
+wait_time(1).
+wait_time(2).
+wait_time(3).
+wait_time(4).
+wait_time(6).
+wait_time(8).
+wait_time(10).
 
 %%%%%%%%%%%%% Misc Tools %%%%%%%%%%%%%
-
-
-
-%                             connection(ID, N/S, W/E, N/E, E/S, S/W, W/N)
 
 % Mark all locations on environment where a decision can be made
 decision_point(Node,in(n)) :- connection(T, A, B, C, D, E, F), A + C + F > 1, cell(Node,T).
@@ -157,15 +120,37 @@ node( N, (w, n)) :- cell(N,Track), end(_,N,_), connection(Track, _, _, _, _, _, 
 node( N , (B,A)) :- node ( N , (A,B)).
 
 
+% opposite directions
+d(s,n).
+d(n,s).
+d(e,w).
+d(w,e).
+
 %%%%%%%%%%%%% Wait nodes %%%%%%%%%%%%%
 % cells that are adjacent to real nodes that allows 'wait' actions
 wait_node( cell(Cell), D, node(Node)) :- node(Node,_), link(Node,Cell,(D,_)), not node(Cell,_).
 
 
+%%%% links %%%%%
+% Connect adjacent cells to one another, includes outgoing and incoming directions (n,e,s,w)
+% NOTE: the directions in the links (e.g. (s,n)) denote on what cardinal end of the cell connects (for link(Cell_1),(Cell_2),(s,n))(s,n) the south point of cell 1 is connected to the north point of cell 2)
 
+link((X1,Y),(X2,Y),(s,n)) :- 
+    connection(Track_s, A1, _, _, B1, C1, _), 
+    1{A1=1;B1=1;C1=1}, % Contains south point
+    % A1+B1+C1>0,
+    connection(Track_n, A2, _, B2, _, _, C2), 
+    1{A2=1;B2=1;C2=1}, % Contains north point
+    % A2+B2+C2>0,
+    cell((X1,Y),Track_s), cell((X2,Y),Track_n),
+    X1 = X2 - 1.
 
+link((X2,Y),(X1,Y),(n,s)) :- link((X1,Y),(X2,Y),(s,n)).   % Reverse, if s/n connection exists, then n/s connection exists between adjacent cells
 
-% n_nodes(N) :- N = #count{Node : node(Node, _)}.
-% n_edges_total(N) :- N = #count{S,F:edge(S,F,_,L)}.
-% density(D) :- n_edges_total(E), n_nodes(N), D = ((100 * E) / (N * (N - 1))).
+link((X,Y1),(X,Y2),(e,w)) :- 
+    connection(Track_e, _, A1, B1, C1, _, _), 1{A1=1;B1=1;C1=1},          %  contains east point
+    connection(Track_w, _, A2, _, _, B2, C2), 1{A2=1;B2=1;C2=1},          %  contains west point
+    cell((X,Y1),Track_e),cell((X,Y2),Track_w),
+    Y1 = Y2 - 1.
 
+link((X,Y2),(X,Y1),(w,e)) :- link((X,Y1),(X,Y2),(e,w)), Y1!=Y2.     % Reverse
