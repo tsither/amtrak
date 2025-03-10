@@ -1,3 +1,5 @@
+# Script to build and run a large number of envioronments with varying number
+# of stops.  Saves all output to a log file.
 import logging
 import os
 import signal
@@ -33,6 +35,7 @@ LEAVE = [
 ]
 
 
+# update the params to have the apropraite grid size and number of stops
 def generate_params(width, height, stops):
     return f'''# basic parameters
 width = {width}
@@ -62,6 +65,7 @@ max_duration = 6
 '''
 
 
+# collect and return all files within a folder
 def get_files(path='envs/lp'):
     files = os.listdir(path)
     for file_to_leave in LEAVE:
@@ -70,6 +74,7 @@ def get_files(path='envs/lp'):
     return files
 
 
+# build the desired number of environments
 def build(num_builds):
     for i in progressbar(range(num_builds)):
         try:
@@ -83,6 +88,7 @@ def build(num_builds):
             logger.warning(e)
 
 
+# call the flatland solver
 def call_solver(curr_env, base=False):
     encoding = 'amtrak/station_stops.lp'
     if base is True:
@@ -102,6 +108,9 @@ def handler(signum, frame):
     raise Exception('Clingo ran out of time!')
 
 
+# extra func to run problem_lps (envs that had a timeout on first run through)
+# with more time and compare to how it is solved by our base soltion (so
+# ignoring stops)
 def solve_problem_lps():
     unsat_count = 0
     timeout_count = 0
@@ -139,6 +148,9 @@ def solve_problem_lps():
     return count_str
 
 
+# run the flatland solver and tally how many environemnts result in a solved,
+# unsatisfiable, or a timeout, and in the case of a timeout, save lp to a new
+# folder for further inspection
 def solve(dim, stops):
     unsat_count = 0
     timeout_count = 0
@@ -171,6 +183,7 @@ def solve(dim, stops):
     return count_str
 
 
+# clean up generated envs in the specfiied files
 def clean_up():
     for path in [
         'envs/lp/',

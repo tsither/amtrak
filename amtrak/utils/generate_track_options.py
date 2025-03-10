@@ -1,3 +1,7 @@
+# Generates amtrak/track_options.lp for use with base.lp and
+# amtrak/station_stops.lp by decoign track id numbers into thier 16 bit
+# transition maps and then into track_option atoms.
+
 WAIT_GEN = 'track_option(Track,(D,wait,D)) :- M != wait, track_option(Track,(D,M,_)).\n'
 
 TRACKS = [

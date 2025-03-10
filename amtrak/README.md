@@ -24,19 +24,17 @@ conda install -c conda-forge clingo
 
 Our project includes three different implementations:
 
-- `base.lp` : our initial solution where movement is on a cell by cell basis ()
-- `graph_based_TODO.lp` : TODO
+- `base.lp` : our initial solution
+- `/graph/` : our graph representations 
 - `station_stops.lp` : our base solution adapted to accomodate station stop along along a train's journey
 
 
 ### base and graph Solutions - Solver
 
-To run either the base solution or graph_based_TODO implementations, uncomment the appropriate line in asp/params.py and run the solver as normal:
+To run either the base solution, make sure the following lines in asp/params.py are not uncommented and run the solver as usual:
 
 ```
-TODO: fill in with params
-TODO: have Ted fill in the right params to run the graph based solution
-# primary = ['amtrak/base.lp', 'amtrak/track_options.lp']
+primary = ['amtrak/base.lp', 'amtrak/track_options.lp']
 secondary = []
 ```
 
@@ -60,8 +58,9 @@ Unforunatly only the generation of the environment lp files is currently possibl
 python build.py 3
 ```
 
-When generating lp files, pkl and png files will also be generated as normally (the process of lp file generation is currently dependant on the pkl file generation and could not be decoupled within the scope of this project), but since they will lack the stops functionality they should be ignored.  To run the implementation with stops, 
+When generating lp files, pkl and png files will also be generated as normally (the process of lp file generation is currently dependant on the pkl file generation and could not be decoupled within the scope of this project), but since they will lack the stops functionality they should be ignored.  To run the implementation with stops, simply run this environment with clingo like the following example:
 
-
-
+```
+clingo amtrak/station_stops.lp envs/lp/env_001--2_2.lp amtrak/track_options.lp
+```
 
